@@ -3,8 +3,8 @@ package day3
 import readInput
 
 fun main() {
-//    val fileLines = readInput("day03-test", "day3")
-    val fileLines = readInput("day03", "day3")
+//    val fileLines = readInput("day04.txt-test", "day3")
+    val fileLines = readInput("day04.txt", "day3")
 
 
     fun part1(fileLines: List<String>): Int {
