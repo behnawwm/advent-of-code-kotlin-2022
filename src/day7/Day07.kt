@@ -6,23 +6,30 @@ fun main() {
     val fileLines = readInput("day07-test", "day7")
 //    val fileLines = readInput("day07", "day7")
 
-    fun updateStorage(currentDir: Dir, rootDir: Dir) {
 
+    fun updateDirsCurrentDir(newDirName: String, storage: Dir) {
+//        if (dirName in currentDir.dirs.map { it.relativePath })
+//            return
+        val current = storage.currentDir
+        current?.dirs?.removeIf {
+            it.relativePath == current.relativePath && it.parentDir == current.parentDir
+        }
+
+        current?.dirs?.add(newDir)
     }
 
-    fun addDirToCurrent(dirName: String, currentDir: Dir, rootDir : Dir) {
-        if (currentDir.dirs.map { it.relativePath }.contains(dirName))
-            return
-        currentDir.dirs.add(
-                Dir(dirName, currentDir)
-        )
-        updateStorage(currentDir,rootDir)
-
+    fun updateFilesCurrentDir(newFile: File, storage: Dir) {
+//        if (dirName in currentDir.dirs.map { it.relativePath })
+//            return
+        val current = storage.currentDir
+        current?.files?.removeIf {
+            it.name == current.relativePath
+        }
+        current?.files?.add(newFile)
     }
 
     fun part1(fileLines: List<String>): Int {
-        val rootDir = Dir("/", null)
-        lateinit var currentDir: Dir
+        val storage = Dir("/", null)
 
         fileLines.forEach {
             println("*****")
@@ -34,19 +41,21 @@ fun main() {
                         "cd" -> {
                             when (commandLine[1]) {
                                 ".." -> {
-                                    currentDir = currentDir.parentDir!!
+                                    storage.currentDir = storage.parentDir
                                 }
 
                                 "/" -> {
-                                    currentDir = rootDir
+                                    storage.currentDir = storage.parentDir
                                 }
 
                                 else -> {
-                                    currentDir.dirs.find {
-                                        it.relativePath == commandLine[1]
-                                    }.let {
-                                        currentDir = it!!
-                                    }
+                                    storage.currentDir = storage.currentDir?.dirs?.find { it.relativePath == commandLine[1] }
+
+//                                    currentDir.dirs.find {
+//                                        it.relativePath == commandLine[1]
+//                                    }.let {
+//                                        currentDir = it!!
+//                                    }
                                 }
                             }
                         }
@@ -63,7 +72,7 @@ fun main() {
                     println(data)
                     when (data[0]) {
                         "dir" -> {
-                            addDirToCurrent(data[1], currentDir)
+                            updateDirsCurrentDir(data[1],storage)
 
 //                            currentDir.dirs.add(
 //                                    Dir(data[1], currentDir)
@@ -78,10 +87,10 @@ fun main() {
                     }
                 }
             }
-            println(rootDir)
+            println(storage)
         }
 
-        print(rootDir)
+        print(storage)
         var count = 0
         return count
     }
@@ -99,6 +108,7 @@ data class State(
 data class Dir(
         val relativePath: String,
         val parentDir: Dir?,
+        var currentDir: Dir? = null,
         val dirs: MutableList<Dir> = mutableListOf(),
         val files: MutableList<File> = mutableListOf()
 )
